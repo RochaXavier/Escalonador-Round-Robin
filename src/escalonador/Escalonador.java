@@ -12,16 +12,17 @@ public class Escalonador {
     private int tempo = 0;
     private int quantum;
     private FilaDinamica fila;
-    private FilaDinamica filaAux;
+    private ListaOrdenada listaAux;
 
     public Escalonador(int quantum) {
         this.quantum = quantum;
         fila = new FilaDinamica();
+        listaAux = new ListaOrdenada();
     }
 
     private void processarQuantum() {
         if (!fila.isEmpty()) {
-          
+
             Processo p = fila.dequeue();
             //System.out.println(tempo);
             if (p.duracaoRestante <= quantum) {
@@ -34,8 +35,8 @@ public class Escalonador {
                 p.descontaMilisegundos(quantum);
                 fila.enqueue(p);
                 System.out.println("Executando: " + p.toString());
-            }          
-           filaAux.enqueue(new Processo(p.codigo, p.duracaoRestante, p.tempoEntrada));
+            }
+            //filaAux.enqueue(new Processo(p.codigo, p.duracaoRestante, p.tempoEntrada));
         }
     }
 
@@ -61,14 +62,15 @@ public class Escalonador {
                             entrada = Integer.parseInt(st.nextElement().toString());
                             break;
                         default:
-                            st.nextElement();
+                            st.nextElement();//I - O
                             break;
                     }
                 }
                 if (i < 3) {
                     throw new Exception("Falha ao ler arquivo, numero insuficente de parametros");
                 }
-                filaAux.enqueue(new Processo(codigo, duracao, entrada));
+                Processo proc = new Processo(codigo, duracao, entrada);
+                listaAux.add(proc);
             }
         } catch (FileNotFoundException ex) {
             System.out.println("Falha ao carregar arquivo de entrada");
@@ -80,10 +82,8 @@ public class Escalonador {
             System.out.println("Falha aleatoria");
             ex.printStackTrace();
         }
-
+        System.out.println(listaAux.toString());
         while (!fila.isEmpty()) {
-            //System.out.println(fila.front().toString());
-           // System.out.println(fila.dequeue().tempoEntrada);
             processarQuantum();
         }
     }
