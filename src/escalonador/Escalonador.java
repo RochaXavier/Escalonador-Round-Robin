@@ -21,10 +21,43 @@ public class Escalonador {
     }
 
     private void processarQuantum() {
-        if (!fila.isEmpty()) {
+        boolean encerrar = false;
+        for (int i = tempo; i < (tempo + quantum) && !encerrar; i++) {
+            //verificar se chegou processos na lista e adicionar na fila
+            if (!listaAux.isEmpty()) {
+                Processo processo = listaAux.removeFirst();
+                while (processo.tempoEntrada == tempo) {
+                    fila.enqueue(processo);
+                    processo = listaAux.removeFirst();
+                }
+                listaAux.add(processo);
+            }
+            //processar 1ms do quantum
+            if (!fila.isEmpty()) {
+                Processo processoAtual = fila.front();
+                processoAtual.descontaMilisegundos(1);
 
+                //verificicar se processo atual acabou e encerrar loop
+                if (processoAtual.finalizado()) {
+                    encerrar = true;
+                    processoAtual.tempoFinalizado = tempo;
+                }
+            }
+            tempo++;
+        }
+        if (encerrar) {
+            System.out.println("Finalizado: " + fila.front().toString() + " Espera de: " + fila.front().tempoDeEspera());
+        } else {
+            System.out.println("Executando: " + fila.front().toString());
+        }
+        if (fila.front() != null) {
+            fila.enqueue(fila.dequeue());
+        }
+    }
+
+    private void processarQuantumAntigo() {
+        if (!fila.isEmpty()) {
             Processo p = fila.dequeue();
-            //System.out.println(tempo);
             if (p.duracaoRestante <= quantum) {
                 tempo += p.duracaoRestante;
                 p.descontaMilisegundos(p.duracaoRestante);
@@ -45,7 +78,7 @@ public class Escalonador {
             FileReader fr = new FileReader(file);
             BufferedReader br = new BufferedReader(fr);
             String line;
-            while ((line = br.readLine()) != null) {
+            while ((line = br.readLine()) != null) {//Ler linha e criar novo processo
                 StringTokenizer st = new StringTokenizer(line, " ");
                 int duracao = 0, entrada = 0;
                 String codigo = "";
@@ -69,8 +102,7 @@ public class Escalonador {
                 if (i < 3) {
                     throw new Exception("Falha ao ler arquivo, numero insuficente de parametros");
                 }
-                Processo proc = new Processo(codigo, duracao, entrada);
-                listaAux.add(proc);
+                listaAux.add(new Processo(codigo, duracao, entrada));
             }
         } catch (FileNotFoundException ex) {
             System.out.println("Falha ao carregar arquivo de entrada");
@@ -82,8 +114,7 @@ public class Escalonador {
             System.out.println("Falha aleatoria");
             ex.printStackTrace();
         }
-        System.out.println(listaAux.toString());
-        while (!fila.isEmpty()) {
+        while (!fila.isEmpty() || !listaAux.isEmpty()) {
             processarQuantum();
         }
     }

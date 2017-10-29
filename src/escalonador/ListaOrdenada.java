@@ -47,7 +47,7 @@ public class ListaOrdenada {
             Node aux = inicio;
             if (inicio == fim) {
                 inicio = fim = null;
-            }else{
+            } else {
                 inicio = inicio.proximo;
             }
             quantidade--;
@@ -65,6 +65,10 @@ public class ListaOrdenada {
             aux = aux.proximo;
         }
         return saida;
+    }
+
+    public Processo getFirst() {
+        return inicio.elemento;
     }
 
 }
