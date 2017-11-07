@@ -22,11 +22,12 @@ public class Escalonador {
 
     private void processarQuantum() {
         boolean encerrar = false;
-        for (int i = tempo; i < (tempo + quantum) && !encerrar; i++) {
+        int tempoInicial = tempo;
+        for (int i = tempo; i < (tempoInicial + quantum) && !encerrar; i++) {
             //verificar se chegou processos na lista e adicionar na fila
             if (!listaAux.isEmpty()) {
                 Processo processo = listaAux.removeFirst();
-                while (processo.tempoEntrada == tempo) {
+                while (processo.tempoEntrada == tempo && !listaAux.isEmpty()) {
                     fila.enqueue(processo);
                     processo = listaAux.removeFirst();
                 }
@@ -45,13 +46,14 @@ public class Escalonador {
             }
             tempo++;
         }
-        if (encerrar) {
-            System.out.println("Finalizado: " + fila.front().toString() + " Espera de: " + fila.front().tempoDeEspera());
-        } else {
-            System.out.println("Executando: " + fila.front().toString());
-        }
         if (fila.front() != null) {
-            fila.enqueue(fila.dequeue());
+            if (encerrar) {
+                System.out.println("Finalizado: " + fila.front().toString() + " Espera de: " + fila.front().tempoDeEspera());
+                fila.dequeue();
+            } else {
+                System.out.println("Executando: " + fila.front().toString());
+                fila.enqueue(fila.dequeue());
+            }
         }
     }
 
